@@ -62,6 +62,7 @@ namespace Autobarn.Website.Controllers.api
 
             return links;
         }
+
         public static dynamic ToDynamic(this object obj)
         {
             IDictionary<string, object> expando = new ExpandoObject();
