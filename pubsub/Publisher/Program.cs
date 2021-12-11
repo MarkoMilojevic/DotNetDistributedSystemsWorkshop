@@ -9,7 +9,7 @@ namespace Publisher
 
         public static void Main(string[] args)
         {
-            IBus bus = RabbitHutch.CreateBus(Amqp);
+            using IBus bus = RabbitHutch.CreateBus(Amqp);
 
             int count = 1;
             while (true)
