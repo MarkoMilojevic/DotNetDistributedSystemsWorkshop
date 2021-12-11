@@ -24,7 +24,7 @@ namespace Autobarn.Website.Controllers.api
 
         // GET: api/vehicles
         [HttpGet]
-        public IActionResult Get(int index = 0, int count = PageSize)
+        public IActionResult Get(int index = 0, int count = PageSize, string expand = "")
         {
             int total = db.CountVehicles();
 
@@ -40,7 +40,7 @@ namespace Autobarn.Website.Controllers.api
                     .ListVehicles()
                     .Skip(index)
                     .Take(PageSize)
-                    .Select(vehicle => vehicle.ToHypermediaResource());
+                    .Select(vehicle => vehicle.ToHypermediaResource(expand));
 
             var result = new
             {

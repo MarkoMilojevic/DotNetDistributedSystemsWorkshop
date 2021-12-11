@@ -84,7 +84,7 @@ namespace Autobarn.Website.Controllers.api
         private static bool Ignore(PropertyDescriptor prop) =>
             prop.Attributes.OfType<JsonIgnoreAttribute>().Any();
 
-        public static dynamic ToHypermediaResource(this Vehicle vehicle)
+        public static dynamic ToHypermediaResource(this Vehicle vehicle, string expand = "")
         {
             dynamic result = vehicle.ToDynamic();
             result._links = new
@@ -98,6 +98,11 @@ namespace Autobarn.Website.Controllers.api
                     href = $"/api/models/{vehicle.ModelCode}",
                 }
             };
+
+            if (expand == "model")
+            {
+                result._embedded = new { model = vehicle.VehicleModel };
+            }
 
             return result;
         }
