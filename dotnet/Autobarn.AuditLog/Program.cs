@@ -24,7 +24,15 @@ namespace Autobarn.AuditLog
 
         private static void HandleNewVehicleMessage(NewVehicleMessage nvm)
         {
-            string csv = $"{nvm.Registration},{nvm.Manufacturer},{nvm.ModelName},{nvm.Year},{nvm.Color},{nvm.ListedAt:O}";
+            string csv =
+                $"{nvm.Registration}," +
+                $"{nvm.Manufacturer}," +
+                $"{nvm.ModelName}," +
+                $"{nvm.Year}," +
+                $"{nvm.Color}," +
+                $"{nvm.ListedAt:O}" +
+                $"{Environment.NewLine}";
+
             File.AppendAllText("vehicles.log", csv);
             Console.WriteLine(csv);
         }
