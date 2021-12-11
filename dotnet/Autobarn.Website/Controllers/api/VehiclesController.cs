@@ -106,7 +106,11 @@ namespace Autobarn.Website.Controllers.api
             }
 
             Model vehicleModel = db.FindModel(dto.ModelCode);
-            
+            if (vehicleModel == null)
+            {
+                return BadRequest($"Sorry, we don't know what kind of car '{dto.ModelCode}' is.");
+            }
+
             Vehicle vehicle = new Vehicle
             {
                 Registration = dto.Registration,
@@ -114,9 +118,9 @@ namespace Autobarn.Website.Controllers.api
                 Year = dto.Year,
                 VehicleModel = vehicleModel
             };
-            
+
             db.CreateVehicle(vehicle);
-            
+
             return Created($"/api/vehicles/{vehicle.Registration}", dto);
         }
 

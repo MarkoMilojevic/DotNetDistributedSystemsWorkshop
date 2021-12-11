@@ -16,8 +16,13 @@ namespace Autobarn.Website.Controllers.api
                 {
                     vehicles = new
                     {
-                        href = "/api/vehicles"
-                    }
+                        href = "/api/vehicles",
+                    },
+
+                    models = new
+                    {
+                        href = "/api/models",
+                    },
                 },
 
                 _actions = new
