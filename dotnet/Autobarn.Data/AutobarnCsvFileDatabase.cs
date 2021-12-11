@@ -21,23 +21,23 @@ namespace Autobarn.Data
         public AutobarnCsvFileDatabase(ILogger<AutobarnCsvFileDatabase> logger)
         {
             this.logger = logger;
-            ReadManufacturersFromCsvFile("manufacturers.csv");
-            ReadModelsFromCsvFile("models.csv");
-            ReadVehiclesFromCsvFile("vehicles.csv");
-            ResolveReferences();
+            this.ReadManufacturersFromCsvFile("manufacturers.csv");
+            this.ReadModelsFromCsvFile("models.csv");
+            this.ReadVehiclesFromCsvFile("vehicles.csv");
+            this.ResolveReferences();
         }
 
         private void ResolveReferences()
         {
-            foreach (Manufacturer mfr in manufacturers.Values)
+            foreach (Manufacturer mfr in this.manufacturers.Values)
             {
-                mfr.Models = models.Values.Where(m => m.ManufacturerCode == mfr.Code).ToList();
+                mfr.Models = this.models.Values.Where(m => m.ManufacturerCode == mfr.Code).ToList();
                 foreach (Model model in mfr.Models) model.Manufacturer = mfr;
             }
 
-            foreach (Model model in models.Values)
+            foreach (Model model in this.models.Values)
             {
-                model.Vehicles = vehicles.Values.Where(v => v.ModelCode == model.Code).ToList();
+                model.Vehicles = this.vehicles.Values.Where(v => v.ModelCode == model.Code).ToList();
                 foreach (Vehicle vehicle in model.Vehicles) vehicle.VehicleModel = model;
             }
         }
@@ -51,7 +51,7 @@ namespace Autobarn.Data
 
         private void ReadVehiclesFromCsvFile(string filename)
         {
-            string filePath = ResolveCsvFilePath(filename);
+            string filePath = this.ResolveCsvFilePath(filename);
             foreach (string line in File.ReadAllLines(filePath))
             {
                 string[] tokens = line.Split(",");
@@ -62,14 +62,14 @@ namespace Autobarn.Data
                     Color = tokens[2]
                 };
                 if (TryParse(tokens[3], out int year)) vehicle.Year = year;
-                vehicles[vehicle.Registration] = vehicle;
+                this.vehicles[vehicle.Registration] = vehicle;
             }
-            logger.LogInformation($"Loaded {vehicles.Count} models from {filePath}");
+            this.logger.LogInformation($"Loaded {this.vehicles.Count} models from {filePath}");
         }
 
         private void ReadModelsFromCsvFile(string filename)
         {
-            string filePath = ResolveCsvFilePath(filename);
+            string filePath = this.ResolveCsvFilePath(filename);
             foreach (string line in File.ReadAllLines(filePath))
             {
                 string[] tokens = line.Split(",");
@@ -79,14 +79,14 @@ namespace Autobarn.Data
                     ManufacturerCode = tokens[1],
                     Name = tokens[2]
                 };
-                models.Add(model.Code, model);
+                this.models.Add(model.Code, model);
             }
-            logger.LogInformation($"Loaded {models.Count} models from {filePath}");
+            this.logger.LogInformation($"Loaded {this.models.Count} models from {filePath}");
         }
 
         private void ReadManufacturersFromCsvFile(string filename)
         {
-            string filePath = ResolveCsvFilePath(filename);
+            string filePath = this.ResolveCsvFilePath(filename);
             foreach (string line in File.ReadAllLines(filePath))
             {
                 string[] tokens = line.Split(",");
@@ -95,41 +95,41 @@ namespace Autobarn.Data
                     Code = tokens[0],
                     Name = tokens[1]
                 };
-                manufacturers.Add(mfr.Code, mfr);
+                this.manufacturers.Add(mfr.Code, mfr);
             }
-            logger.LogInformation($"Loaded {manufacturers.Count} manufacturers from {filePath}");
+            this.logger.LogInformation($"Loaded {this.manufacturers.Count} manufacturers from {filePath}");
         }
 
-        public int CountVehicles() => vehicles.Count;
+        public int CountVehicles() => this.vehicles.Count;
 
-        public IEnumerable<Vehicle> ListVehicles() => vehicles.Values;
+        public IEnumerable<Vehicle> ListVehicles() => this.vehicles.Values;
 
-        public IEnumerable<Manufacturer> ListManufacturers() => manufacturers.Values;
+        public IEnumerable<Manufacturer> ListManufacturers() => this.manufacturers.Values;
 
-        public IEnumerable<Model> ListModels() => models.Values;
+        public IEnumerable<Model> ListModels() => this.models.Values;
 
-        public Vehicle FindVehicle(string registration) => vehicles.GetValueOrDefault(registration);
+        public Vehicle FindVehicle(string registration) => this.vehicles.GetValueOrDefault(registration);
 
-        public Model FindModel(string code) => models.GetValueOrDefault(code);
+        public Model FindModel(string code) => this.models.GetValueOrDefault(code);
 
-        public Manufacturer FindManufacturer(string code) => manufacturers.GetValueOrDefault(code);
+        public Manufacturer FindManufacturer(string code) => this.manufacturers.GetValueOrDefault(code);
 
         public void CreateVehicle(Vehicle vehicle)
         {
             vehicle.VehicleModel.Vehicles.Add(vehicle);
-            UpdateVehicle(vehicle);
+            this.UpdateVehicle(vehicle);
         }
 
         public void UpdateVehicle(Vehicle vehicle)
         {
-            vehicles[vehicle.Registration] = vehicle;
+            this.vehicles[vehicle.Registration] = vehicle;
         }
 
         public void DeleteVehicle(Vehicle vehicle)
         {
-            Model model = FindModel(vehicle.ModelCode);
+            Model model = this.FindModel(vehicle.ModelCode);
             model.Vehicles.Remove(vehicle);
-            vehicles.Remove(vehicle.Registration);
+            this.vehicles.Remove(vehicle.Registration);
         }
     }
 }

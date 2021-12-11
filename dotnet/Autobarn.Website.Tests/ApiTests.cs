@@ -23,7 +23,7 @@ namespace Autobarn.Website.Tests
         [Fact]
         public async void GET_vehicles_returns_success_status_code()
         {
-            HttpClient client = factory.CreateClient();
+            HttpClient client = this.factory.CreateClient();
             HttpResponseMessage response = await client.GetAsync("/api/vehicles");
             Assert.True(response.IsSuccessStatusCode);
         }
@@ -31,7 +31,7 @@ namespace Autobarn.Website.Tests
         [Fact]
         public async void GET_vehicles_returns_vehicle_data()
         {
-            HttpClient client = factory.CreateClient();
+            HttpClient client = this.factory.CreateClient();
             HttpResponseMessage response = await client.GetAsync("/api/vehicles");
             string json = await response.Content.ReadAsStringAsync();
             List<Vehicle> vehicles = JsonConvert.DeserializeObject<List<Vehicle>>(json);
@@ -42,7 +42,7 @@ namespace Autobarn.Website.Tests
         public async void POST_creates_vehicle()
         {
             string registration = Guid.NewGuid().ToString("N");
-            HttpClient client = factory.CreateClient();
+            HttpClient client = this.factory.CreateClient();
             var vehicle = new
             {
                 modelCode = "volkswagen-beetle",
@@ -63,7 +63,7 @@ namespace Autobarn.Website.Tests
         public async void PUT_creates_vehicle()
         {
             string registration = Guid.NewGuid().ToString("N");
-            HttpClient client = factory.CreateClient();
+            HttpClient client = this.factory.CreateClient();
             await client.PutVolkswagen(registration, "Green", 1985);
             (HttpResponseMessage _, Vehicle vehicle) = await client.GetVehicle(registration);
             vehicle.Color.ShouldBe("Green");
@@ -74,7 +74,7 @@ namespace Autobarn.Website.Tests
         public async void PUT_updates_vehicle()
         {
             string registration = Guid.NewGuid().ToString("N");
-            HttpClient client = factory.CreateClient();
+            HttpClient client = this.factory.CreateClient();
             await client.PutVolkswagen(registration, "Green", 1985);
             (HttpResponseMessage _, Vehicle vehicle) = await client.GetVehicle(registration);
             vehicle.Color.ShouldBe("Green");

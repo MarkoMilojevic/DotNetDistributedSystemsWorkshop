@@ -14,14 +14,14 @@ namespace Autobarn.Website.Controllers
         }
         public IActionResult Index()
         {
-            System.Collections.Generic.IEnumerable<Data.Entities.Manufacturer> vehicles = db.ListManufacturers();
-            return View(vehicles);
+            System.Collections.Generic.IEnumerable<Data.Entities.Manufacturer> vehicles = this.db.ListManufacturers();
+            return this.View(vehicles);
         }
 
         public IActionResult Models(string id)
         {
-            Data.Entities.Manufacturer manufacturer = db.ListManufacturers().FirstOrDefault(m => m.Code == id);
-            return View(manufacturer);
+            Data.Entities.Manufacturer manufacturer = this.db.ListManufacturers().FirstOrDefault(m => m.Code == id);
+            return this.View(manufacturer);
         }
     }
 }

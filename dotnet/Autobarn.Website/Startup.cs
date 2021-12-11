@@ -1,4 +1,5 @@
 using Autobarn.Data;
+using EasyNetQ;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,11 +11,11 @@ namespace Autobarn.Website
 {
     public class Startup
     {
-        protected virtual string DatabaseMode => Configuration["DatabaseMode"];
+        protected virtual string DatabaseMode => this.Configuration["DatabaseMode"];
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -25,17 +26,21 @@ namespace Autobarn.Website
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllersWithViews().AddNewtonsoftJson(options => options.UseCamelCasing(processDictionaryKeys: true));
             services.AddRazorPages().AddRazorRuntimeCompilation();
-            Console.WriteLine(DatabaseMode);
-            switch (DatabaseMode)
+            Console.WriteLine(this.DatabaseMode);
+            switch (this.DatabaseMode)
             {
                 case "sql":
-                    string sqlConnectionString = Configuration.GetConnectionString("AutobarnSqlConnectionString");
+                    string sqlConnectionString = this.Configuration.GetConnectionString("AutobarnSqlConnectionString");
                     services.UseAutobarnSqlDatabase(sqlConnectionString);
                     break;
                 default:
                     services.AddSingleton<IAutobarnDatabase, AutobarnCsvFileDatabase>();
                     break;
             }
+
+            string rabbitMqConnectinString = this.Configuration.GetConnectionString("AutobarnRabbitMQConnectionString");
+            IBus bus = RabbitHutch.CreateBus(rabbitMqConnectinString);
+            services.AddSingleton(bus);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

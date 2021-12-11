@@ -39,7 +39,7 @@ namespace Autobarn.Website.Controllers.api
                 message = "Welcome to the Autobarn API!",
             };
 
-            return Ok(result);
+            return this.Ok(result);
         }
     }
 }

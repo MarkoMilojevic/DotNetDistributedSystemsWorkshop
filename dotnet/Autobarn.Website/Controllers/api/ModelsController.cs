@@ -23,37 +23,37 @@ namespace Autobarn.Website.Controllers.api
         public IActionResult Get()
         {
             IEnumerable<dynamic> models =
-                db
+                this.db
                     .ListModels()
                     .Select(m => m.ToHypermediaResource());
 
-            return Ok(models);
+            return this.Ok(models);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(string id)
         {
-            Model vehicleModel = db.FindModel(id);
-            if (vehicleModel == default) return NotFound();
-            return Ok(vehicleModel);
+            Model vehicleModel = this.db.FindModel(id);
+            if (vehicleModel == default) return this.NotFound();
+            return this.Ok(vehicleModel);
         }
 
         [HttpPost("{id}")]
         [Produces("application/hal+json")]
         public IActionResult Post(string id, [FromBody] VehicleDto dto)
         {
-            var vehicleModel = db.FindModel(id);
-            if (vehicleModel == default) return NotFound();
-            var existing = db.FindVehicle(dto.Registration);
-            if (existing != default) return Conflict($"Sorry, vehicle {dto.Registration} already exists in our database and you're not allowed to sell the same car twice.");
-            var vehicle = new Vehicle
+            Model vehicleModel = this.db.FindModel(id);
+            if (vehicleModel == default) return this.NotFound();
+            Vehicle existing = this.db.FindVehicle(dto.Registration);
+            if (existing != default) return this.Conflict($"Sorry, vehicle {dto.Registration} already exists in our database and you're not allowed to sell the same car twice.");
+            Vehicle vehicle = new Vehicle
             {
                 Registration = dto.Registration,
                 Color = dto.Color,
                 Year = dto.Year,
                 VehicleModel = vehicleModel
             };
-            db.CreateVehicle(vehicle);
+            this.db.CreateVehicle(vehicle);
             return Created($"/api/vehicles/{vehicle.Registration}", vehicle.ToHypermediaResource());
         }
     }

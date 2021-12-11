@@ -28,8 +28,8 @@ namespace Autobarn.Website.Models
         [DisplayName("Registration Plate")]
         public string Registration
         {
-            get => NormalizeRegistration(registration);
-            set => registration = value;
+            get => NormalizeRegistration(this.registration);
+            set => this.registration = value;
         }
 
         [Required]

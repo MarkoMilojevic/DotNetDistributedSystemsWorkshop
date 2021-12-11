@@ -1,7 +1,11 @@
 ﻿using Autobarn.Data;
 using Autobarn.Data.Entities;
+using Autobarn.Messages;
+using Autobarn.Website.MessageHandlers;
 using Autobarn.Website.Models;
+using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,17 +20,19 @@ namespace Autobarn.Website.Controllers.api
         const int PageSize = 10;
 
         private readonly IAutobarnDatabase db;
+        private readonly IBus bus;
 
-        public VehiclesController(IAutobarnDatabase db)
+        public VehiclesController(IAutobarnDatabase db, IBus bus)
         {
             this.db = db;
+            this.bus = bus;
         }
 
         // GET: api/vehicles
         [HttpGet]
         public IActionResult Get(int index = 0, int count = PageSize, string expand = "")
         {
-            int total = db.CountVehicles();
+            int total = this.db.CountVehicles();
 
             Dictionary<string, object> _links =
                 HypermediaExtensions.Paginate(
@@ -36,7 +42,7 @@ namespace Autobarn.Website.Controllers.api
                     total: total);
 
             IEnumerable<dynamic> items =
-                db
+                this.db
                     .ListVehicles()
                     .Skip(index)
                     .Take(PageSize)
@@ -48,14 +54,14 @@ namespace Autobarn.Website.Controllers.api
                 items,
             };
 
-            return Ok(result);
+            return this.Ok(result);
         }
 
         // GET: api/vehicles
         [HttpGet("registration/{registration}")]
         public IActionResult GetByRegistration(char registration = 'A')
         {
-            int total = db.CountVehicles();
+            int total = this.db.CountVehicles();
 
             Dictionary<string, object> _links =
                 HypermediaExtensions.PaginateByLicensePlate(
@@ -63,7 +69,7 @@ namespace Autobarn.Website.Controllers.api
                     index: registration);
 
             IEnumerable<dynamic> items =
-                db
+                this.db
                     .ListVehicles()
                     .Where(v => v.Registration.StartsWith(registration))
                     .Select(vehicle => vehicle.ToHypermediaResource());
@@ -74,17 +80,17 @@ namespace Autobarn.Website.Controllers.api
                 items,
             };
 
-            return Ok(result);
+            return this.Ok(result);
         }
 
         // GET api/vehicles/ABC123
         [HttpGet("{id}")]
         public IActionResult Get(string id)
         {
-            Vehicle vehicle = db.FindVehicle(id);
+            Vehicle vehicle = this.db.FindVehicle(id);
             if (vehicle == default)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
             return Ok(vehicle.ToHypermediaResource());
@@ -94,7 +100,7 @@ namespace Autobarn.Website.Controllers.api
         [HttpPost]
         public IActionResult Post([FromBody] VehicleDto dto)
         {
-            var existingVehicle = db.FindVehicle(dto.Registration);
+            Vehicle existingVehicle = this.db.FindVehicle(dto.Registration);
             if (existingVehicle != default)
             {
                 string error =
@@ -105,10 +111,10 @@ namespace Autobarn.Website.Controllers.api
                 return base.Conflict(error);
             }
 
-            Model vehicleModel = db.FindModel(dto.ModelCode);
+            Model vehicleModel = this.db.FindModel(dto.ModelCode);
             if (vehicleModel == null)
             {
-                return BadRequest($"Sorry, we don't know what kind of car '{dto.ModelCode}' is.");
+                return this.BadRequest($"Sorry, we don't know what kind of car '{dto.ModelCode}' is.");
             }
 
             Vehicle vehicle = new Vehicle
@@ -119,16 +125,19 @@ namespace Autobarn.Website.Controllers.api
                 VehicleModel = vehicleModel
             };
 
-            db.CreateVehicle(vehicle);
+            this.db.CreateVehicle(vehicle);
 
-            return Created($"/api/vehicles/{vehicle.Registration}", dto);
+            this.bus.PublishNewVehicleMessage(vehicle);
+
+            return this.Created($"/api/vehicles/{vehicle.Registration}", dto);
         }
 
         // PUT api/vehicles/ABC123
         [HttpPut("{id}")]
         public IActionResult Put(string id, [FromBody] VehicleDto dto)
         {
-            Model vehicleModel = db.FindModel(dto.ModelCode);
+            Model vehicleModel = this.db.FindModel(dto.ModelCode);
+            
             Vehicle vehicle = new Vehicle
             {
                 Registration = dto.Registration,
@@ -136,18 +145,19 @@ namespace Autobarn.Website.Controllers.api
                 Year = dto.Year,
                 ModelCode = vehicleModel.Code
             };
-            db.UpdateVehicle(vehicle);
-            return Ok(dto);
+
+            this.db.UpdateVehicle(vehicle);
+            return this.Ok(dto);
         }
 
         // DELETE api/vehicles/ABC123
         [HttpDelete("{id}")]
         public IActionResult Delete(string id)
         {
-            Vehicle vehicle = db.FindVehicle(id);
-            if (vehicle == default) return NotFound();
-            db.DeleteVehicle(vehicle);
-            return NoContent();
+            Vehicle vehicle = this.db.FindVehicle(id);
+            if (vehicle == default) return this.NotFound();
+            this.db.DeleteVehicle(vehicle);
+            return this.NoContent();
         }
     }
 }

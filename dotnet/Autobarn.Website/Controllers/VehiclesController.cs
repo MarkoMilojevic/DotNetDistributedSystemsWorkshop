@@ -15,42 +15,42 @@ namespace Autobarn.Website.Controllers
         }
         public IActionResult Index()
         {
-            System.Collections.Generic.IEnumerable<Vehicle> vehicles = db.ListVehicles();
-            return View(vehicles);
+            System.Collections.Generic.IEnumerable<Vehicle> vehicles = this.db.ListVehicles();
+            return this.View(vehicles);
         }
 
         public IActionResult Details(string id)
         {
-            Vehicle vehicle = db.FindVehicle(id);
-            return View(vehicle);
+            Vehicle vehicle = this.db.FindVehicle(id);
+            return this.View(vehicle);
         }
 
         [HttpGet]
         public IActionResult Advertise(string id)
         {
-            Model vehicleModel = db.FindModel(id);
+            Model vehicleModel = this.db.FindModel(id);
             VehicleDto dto = new VehicleDto()
             {
                 ModelCode = vehicleModel.Code,
                 ModelName = $"{vehicleModel.Manufacturer.Name} {vehicleModel.Name}"
             };
-            return View(dto);
+            return this.View(dto);
         }
 
         [HttpPost]
         public IActionResult Advertise(VehicleDto dto)
         {
-            Vehicle existingVehicle = db.FindVehicle(dto.Registration);
+            Vehicle existingVehicle = this.db.FindVehicle(dto.Registration);
             if (existingVehicle != default)
-                ModelState.AddModelError(nameof(dto.Registration),
+                this.ModelState.AddModelError(nameof(dto.Registration),
                     "That registration is already listed in our database.");
-            Model vehicleModel = db.FindModel(dto.ModelCode);
+            Model vehicleModel = this.db.FindModel(dto.ModelCode);
             if (vehicleModel == default)
             {
-                ModelState.AddModelError(nameof(dto.ModelCode),
+                this.ModelState.AddModelError(nameof(dto.ModelCode),
                     $"Sorry, {dto.ModelCode} is not a valid model code.");
             }
-            if (!ModelState.IsValid) return View(dto);
+            if (!this.ModelState.IsValid) return this.View(dto);
             Vehicle vehicle = new Vehicle()
             {
                 Registration = dto.Registration,
@@ -58,8 +58,8 @@ namespace Autobarn.Website.Controllers
                 VehicleModel = vehicleModel,
                 Year = dto.Year
             };
-            db.CreateVehicle(vehicle);
-            return RedirectToAction("Details", new { id = vehicle.Registration });
+            this.db.CreateVehicle(vehicle);
+            return this.RedirectToAction("Details", new { id = vehicle.Registration });
         }
     }
 }

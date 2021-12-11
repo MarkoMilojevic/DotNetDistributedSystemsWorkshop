@@ -9,7 +9,7 @@ namespace Autobarn.Data.Entities
     {
         public Model()
         {
-            Vehicles = new HashSet<Vehicle>();
+            this.Vehicles = new HashSet<Vehicle>();
         }
 
         public string Code { get; set; }

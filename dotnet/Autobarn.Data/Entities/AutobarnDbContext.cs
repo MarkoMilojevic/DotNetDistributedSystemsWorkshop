@@ -64,7 +64,7 @@ namespace Autobarn.Data.Entities
                     .HasConstraintName("FK_Vehicles_Models");
             });
 
-            OnModelCreatingPartial(modelBuilder);
+            this.OnModelCreatingPartial(modelBuilder);
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

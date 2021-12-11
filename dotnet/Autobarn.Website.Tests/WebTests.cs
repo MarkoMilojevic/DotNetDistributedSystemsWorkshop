@@ -14,7 +14,7 @@ namespace Autobarn.Website.Tests
         [Fact]
         public async void WebsiteWorks()
         {
-            System.Net.Http.HttpClient client = factory.CreateClient();
+            System.Net.Http.HttpClient client = this.factory.CreateClient();
             System.Net.Http.HttpResponseMessage response = await client.GetAsync("/");
             response.EnsureSuccessStatusCode();
         }
