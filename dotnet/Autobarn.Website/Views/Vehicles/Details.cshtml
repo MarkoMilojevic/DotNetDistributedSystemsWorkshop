@@ -6,9 +6,9 @@
 <hr />
 <dl>
     <dt>Make:</dt>
-    <dd><a href="@Url.Action("Models", "Manufacturers", new { id = Model.VehicleModel.ManufacturerCode})">@Model.VehicleModel.Manufacturer.Name</a></dd>
+    <dd><a href="@Url.Action("Models", "Manufacturers", new { id = Model.VehicleModel?.ManufacturerCode})">@Model.VehicleModel?.Manufacturer?.Name</a></dd>
     <dt>Model:</dt>
-    <dd>@Model.VehicleModel.Name</dd>
+    <dd>@Model?.VehicleModel?.Name</dd>
     <dt>Year:</dt>
     <dd>@Model.Year</dd>
     <dt>Colour:</dt>

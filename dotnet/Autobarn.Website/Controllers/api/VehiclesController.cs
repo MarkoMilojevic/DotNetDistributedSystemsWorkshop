@@ -147,7 +147,7 @@ namespace Autobarn.Website.Controllers.api
             };
 
             Vehicle existingVehicle = this.db.FindVehicle(id);
-            if (existingVehicle != default)
+            if (existingVehicle == default)
             {
                 this.bus.PublishNewVehicleMessage(vehicle);
             }
