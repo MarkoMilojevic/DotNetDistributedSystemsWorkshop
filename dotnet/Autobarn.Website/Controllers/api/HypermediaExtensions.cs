@@ -106,5 +106,31 @@ namespace Autobarn.Website.Controllers.api
 
             return result;
         }
+
+        public static dynamic ToHypermediaResource(this Model model)
+        {
+            dynamic result = model.ToDynamic();
+
+            result._links = new
+            {
+                self = new
+                {
+                    href = $"/api/models/{model.Code}",
+                },
+            };
+
+            result._actions = new
+            {
+                create = new
+                {
+                    href = $"/api/models/{model.Code}",
+                    method = "POST",
+                    type = "application/json",
+                    name = $"Create a new {model.Manufacturer.Name} {model.Name}",
+                },
+            };
+
+            return result;
+        }
     }
 }
