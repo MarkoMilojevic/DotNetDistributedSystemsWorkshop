@@ -1,4 +1,5 @@
 ﻿using EasyNetQ;
+using Messages;
 using System;
 
 namespace Subscriber
@@ -10,15 +11,17 @@ namespace Subscriber
         public static void Main(string[] args)
         {
             using IBus bus = RabbitHutch.CreateBus(Amqp);
-
-            string subscriptionId = "itkonekt";
-            bus.PubSub.Subscribe<string>(subscriptionId, (string message) =>
-            {
-                Console.WriteLine(message);
-            });
-
-            Console.WriteLine("Subscribed. Listening for messages...");
+            string subscriberId = $"subscriber@{Environment.MachineName}";
+            bus.PubSub.Subscribe<string>(subscriberId, message => Console.WriteLine(message));
+            bus.PubSub.Subscribe<Greeting>(subscriberId, HandleGreeting);
+            Console.WriteLine("Subscribed! Listening for messages...");
             Console.ReadLine();
+        }
+
+        static void HandleGreeting(Greeting g)
+        {
+            Console.WriteLine($"{g.From} says (in {g.Language}:");
+            Console.WriteLine($"  {g.Text}");
         }
     }
 }

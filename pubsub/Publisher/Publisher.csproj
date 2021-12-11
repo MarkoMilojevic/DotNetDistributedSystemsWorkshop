@@ -9,4 +9,8 @@
     <PackageReference Include="EasyNetq" Version="6.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Messages\Messages.csproj" />
+  </ItemGroup>
+
 </Project>
