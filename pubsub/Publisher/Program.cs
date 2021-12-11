@@ -16,7 +16,7 @@ namespace Publisher
             {
                 Console.WriteLine("Press 1 to publish a string, or 2 to publish a message");
                 ConsoleKeyInfo key = Console.ReadKey(false);
-                string message = $"Greeting {count++} from {Environment.MachineName} at {DateTime.UtcNow:O}";
+                string message = $"Pozdrav {count++} od {Environment.MachineName} u {DateTime.UtcNow:O}";
                 switch (key.KeyChar)
                 {
                     case '1':
@@ -29,9 +29,9 @@ namespace Publisher
                     case '2':
                         Greeting greeting = new Greeting
                         {
-                            From = "Dylan",
+                            From = "Marko",
                             Text = message,
-                            Language = "English"
+                            Language = "Serbian"
                         };
 
                         bus.PubSub.Publish(greeting);
