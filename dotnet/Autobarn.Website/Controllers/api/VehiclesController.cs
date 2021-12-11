@@ -94,7 +94,19 @@ namespace Autobarn.Website.Controllers.api
         [HttpPost]
         public IActionResult Post([FromBody] VehicleDto dto)
         {
+            var existingVehicle = db.FindVehicle(dto.Registration);
+            if (existingVehicle != default)
+            {
+                string error =
+                    $"Sorry, vehicle {dto.Registration} already exists " +
+                    $"in our database and you're not allowed " +
+                    $"to sell the same car twice.";
+
+                return base.Conflict(error);
+            }
+
             Model vehicleModel = db.FindModel(dto.ModelCode);
+            
             Vehicle vehicle = new Vehicle
             {
                 Registration = dto.Registration,
@@ -102,8 +114,10 @@ namespace Autobarn.Website.Controllers.api
                 Year = dto.Year,
                 VehicleModel = vehicleModel
             };
+            
             db.CreateVehicle(vehicle);
-            return Ok(dto);
+            
+            return Created($"/api/vehicles/{vehicle.Registration}", dto);
         }
 
         // PUT api/vehicles/ABC123

@@ -14,7 +14,21 @@ namespace Autobarn.Website.Controllers.api
             {
                 _links = new
                 {
-                    vehicles = new { href = "/api/vehicles" }
+                    vehicles = new
+                    {
+                        href = "/api/vehicles"
+                    }
+                },
+
+                _actions = new
+                {
+                    create = new
+                    {
+                        href = "/api/vehicles",
+                        type = "application/json",
+                        method = "POST",
+                        name = "Add a new vehicle to Autobarn",
+                    },
                 },
 
                 message = "Welcome to the Autobarn API!",
