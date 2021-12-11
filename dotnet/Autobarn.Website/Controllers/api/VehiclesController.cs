@@ -146,7 +146,14 @@ namespace Autobarn.Website.Controllers.api
                 ModelCode = vehicleModel.Code
             };
 
+            Vehicle existingVehicle = this.db.FindVehicle(id);
+            if (existingVehicle != default)
+            {
+                this.bus.PublishNewVehicleMessage(vehicle);
+            }
+
             this.db.UpdateVehicle(vehicle);
+
             return this.Ok(dto);
         }
 

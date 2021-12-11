@@ -1,21 +1,26 @@
 ﻿using Autobarn.Data;
 using Autobarn.Data.Entities;
+using Autobarn.Website.MessageHandlers;
 using Autobarn.Website.Models;
+using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Autobarn.Website.Controllers
 {
     public class VehiclesController : Controller
     {
         private readonly IAutobarnDatabase db;
+        private readonly IBus bus;
 
-        public VehiclesController(IAutobarnDatabase db)
+        public VehiclesController(IAutobarnDatabase db, IBus bus)
         {
             this.db = db;
+            this.bus = bus;
         }
         public IActionResult Index()
         {
-            System.Collections.Generic.IEnumerable<Vehicle> vehicles = this.db.ListVehicles();
+            IEnumerable<Vehicle> vehicles = this.db.ListVehicles();
             return this.View(vehicles);
         }
 
@@ -42,15 +47,23 @@ namespace Autobarn.Website.Controllers
         {
             Vehicle existingVehicle = this.db.FindVehicle(dto.Registration);
             if (existingVehicle != default)
+            {
                 this.ModelState.AddModelError(nameof(dto.Registration),
                     "That registration is already listed in our database.");
+            }
+
             Model vehicleModel = this.db.FindModel(dto.ModelCode);
             if (vehicleModel == default)
             {
                 this.ModelState.AddModelError(nameof(dto.ModelCode),
                     $"Sorry, {dto.ModelCode} is not a valid model code.");
             }
-            if (!this.ModelState.IsValid) return this.View(dto);
+
+            if (!this.ModelState.IsValid)
+            {
+                return this.View(dto);
+            }
+            
             Vehicle vehicle = new Vehicle()
             {
                 Registration = dto.Registration,
@@ -58,7 +71,11 @@ namespace Autobarn.Website.Controllers
                 VehicleModel = vehicleModel,
                 Year = dto.Year
             };
+
             this.db.CreateVehicle(vehicle);
+
+            this.bus.PublishNewVehicleMessage(vehicle);
+
             return this.RedirectToAction("Details", new { id = vehicle.Registration });
         }
     }
