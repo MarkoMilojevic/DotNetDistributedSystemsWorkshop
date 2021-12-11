@@ -28,11 +28,12 @@ namespace Autobarn.Website.Controllers.api
         {
             int total = db.CountVehicles();
 
-            var _links = HypermediaExtensions.Paginate(
-                "https://localhost:5001/api/vehicles",
-                index,
-                count,
-                total);
+            Dictionary<string, object> _links =
+                HypermediaExtensions.Paginate(
+                    baseUrl: "https://localhost:5001/api/vehicles",
+                    index: index,
+                    count: count,
+                    total: total);
 
             IEnumerable<Vehicle> items =
                 db
