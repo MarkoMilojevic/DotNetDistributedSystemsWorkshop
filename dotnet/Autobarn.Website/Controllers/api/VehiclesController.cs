@@ -2,9 +2,7 @@
 using Autobarn.Data.Entities;
 using Autobarn.Website.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,7 +13,7 @@ namespace Autobarn.Website.Controllers.api
     [ApiController]
     public class VehiclesController : ControllerBase
     {
-        private readonly int PageSize = 10;
+        const int PageSize = 10;
 
         private readonly IAutobarnDatabase db;
 
@@ -26,16 +24,15 @@ namespace Autobarn.Website.Controllers.api
 
         // GET: api/vehicles
         [HttpGet]
-        public IActionResult Get(int index = 0)
+        public IActionResult Get(int index = 0, int count = PageSize)
         {
-            dynamic _links = new ExpandoObject();
-            _links.self = new { href = $"/api/vehicles?index={index}" };
-            _links.next = new { href = $"/api/vehicles?index={index + PageSize}" };
+            int total = db.CountVehicles();
 
-            if (index > 0)
-            {
-                _links.previous = new { href = $"/api/vehicles?index={Math.Max(index - PageSize, 0)}" };
-            }
+            var _links = HypermediaExtensions.Paginate(
+                "https://localhost:5001/api/vehicles",
+                index,
+                count,
+                total);
 
             IEnumerable<Vehicle> items =
                 db
@@ -46,7 +43,7 @@ namespace Autobarn.Website.Controllers.api
             var result = new
             {
                 _links,
-                items
+                items,
             };
 
             return Ok(result);
