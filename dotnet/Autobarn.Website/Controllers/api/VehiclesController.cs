@@ -35,11 +35,38 @@ namespace Autobarn.Website.Controllers.api
                     count: count,
                     total: total);
 
-            IEnumerable<Vehicle> items =
+            IEnumerable<dynamic> items =
                 db
                     .ListVehicles()
                     .Skip(index)
-                    .Take(PageSize);
+                    .Take(PageSize)
+                    .Select(vehicle => vehicle.ToHypermediaResource());
+
+            var result = new
+            {
+                _links,
+                items,
+            };
+
+            return Ok(result);
+        }
+
+        // GET: api/vehicles
+        [HttpGet("registration/{registration}")]
+        public IActionResult GetByRegistration(char registration = 'A')
+        {
+            int total = db.CountVehicles();
+
+            Dictionary<string, object> _links =
+                HypermediaExtensions.PaginateByLicensePlate(
+                    baseUrl: "https://localhost:5001/api/vehicles",
+                    index: registration);
+
+            IEnumerable<dynamic> items =
+                db
+                    .ListVehicles()
+                    .Where(v => v.Registration.StartsWith(registration))
+                    .Select(vehicle => vehicle.ToHypermediaResource());
 
             var result = new
             {
@@ -55,10 +82,12 @@ namespace Autobarn.Website.Controllers.api
         public IActionResult Get(string id)
         {
             Vehicle vehicle = db.FindVehicle(id);
+            if (vehicle == default)
+            {
+                return NotFound();
+            }
 
-            return vehicle == default
-                ? NotFound()
-                : (IActionResult)Ok(vehicle);
+            return Ok(vehicle.ToHypermediaResource());
         }
 
         // POST api/vehicles

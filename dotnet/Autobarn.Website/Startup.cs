@@ -23,7 +23,7 @@ namespace Autobarn.Website
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRouting(options => options.LowercaseUrls = true);
-            services.AddControllersWithViews().AddNewtonsoftJson();
+            services.AddControllersWithViews().AddNewtonsoftJson(options => options.UseCamelCasing(processDictionaryKeys: true));
             services.AddRazorPages().AddRazorRuntimeCompilation();
             Console.WriteLine(DatabaseMode);
             switch (DatabaseMode)
