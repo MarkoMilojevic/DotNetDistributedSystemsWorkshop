@@ -24,9 +24,24 @@ namespace Autobarn.Website.Controllers.api
 
         // GET: api/vehicles
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get(int index = 0)
         {
-            return Ok("Hello");
+            IEnumerable<Vehicle> items =
+                db
+                    .ListVehicles()
+                    .Skip(index)
+                    .Take(PageSize);
+
+            var result = new
+            {
+                _links = new
+                {
+                    href = "/api/vehicles"
+                },
+                items
+            };
+
+            return Ok(result);
         }
 
         // GET api/vehicles/ABC123
