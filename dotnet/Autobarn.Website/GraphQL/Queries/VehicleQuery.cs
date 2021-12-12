@@ -33,8 +33,34 @@ namespace Autobarn.Website.GraphQL.Queries
             this.Field<ListGraphType<VehicleGraphType>>(
                 name: "VehiclesByColor",
                 description: "Retrieve all vehicles matching a particular color",
-                arguments: new QueryArguments(MakeNonNullStringArgument("color", "What color cars do you want to see?")),
+                arguments:
+                    new QueryArguments(
+                        MakeNonNullStringArgument(
+                            name: "color",
+                            description: "What color cars do you want to see?")),
                 resolve: this.GetVehiclesByColor);
+
+            this.Field<ListGraphType<VehicleGraphType>>(
+                name: "VehiclesByYear",
+                description: "Retrieve all vehicles based on the year of manufacture",
+                arguments:
+                    new QueryArguments(
+                        new QueryArgument<IntGraphType>
+                        {
+                            Name = "manufacturedAfterYear",
+                            Description = "Retrieve all vehicles manufactured after year"
+                        },
+                        new QueryArgument<IntGraphType>
+                        {
+                            Name = "manufacturedBeforeYear",
+                            Description = "Retrieve all vehicles manufactured before year"
+                        },
+                        new QueryArgument<IntGraphType>
+                        {
+                            Name = "manufacturedInYear",
+                            Description = "Retrieve all vehicles manufactured in year"
+                        }),
+                resolve: this.GetVehiclesByYear);
         }
 
         private IEnumerable<Vehicle> GetAllVehicles(IResolveFieldContext<object> context) =>
@@ -50,6 +76,32 @@ namespace Autobarn.Website.GraphQL.Queries
             return this.db
                     .ListVehicles()
                     .Where(v => v.Color.Contains(color, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        private IEnumerable<Vehicle> GetVehiclesByYear(IResolveFieldContext<object> context)
+        {
+            int? after = context.GetArgument<int?>("manufacturedAfterYear");
+            int? before = context.GetArgument<int?>("manufacturedBeforeYear");
+            int? exactYear = context.GetArgument<int?>("manufacturedInYear");
+
+            var vehicles = this.db.ListVehicles();
+
+            if (after != null)
+            {
+                vehicles = vehicles.Where(v => v.Year > after.Value);
+            }
+
+            if (before != null)
+            {
+                vehicles = vehicles.Where(v => v.Year < before.Value);
+            }
+
+            if (exactYear != null)
+            {
+                vehicles = vehicles.Where(v => v.Year == exactYear.Value);
+            }
+
+            return vehicles;
         }
 
         private static QueryArgument MakeNonNullStringArgument(string name, string description)
