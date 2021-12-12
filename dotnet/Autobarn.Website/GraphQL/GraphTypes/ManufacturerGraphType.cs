@@ -7,9 +7,9 @@ namespace Autobarn.Website.GraphQL.GraphTypes
     {
         public ManufacturerGraphType()
         {
-            Name = "manufacturer";
-            Field(c => c.Name).Description("The name of the manufacturer, e.g. Tesla, Volkswagen, Ford");
-            Field(c => c.Code).Description("The unique database code identifying this manufacturer");
+            this.Name = "manufacturer";
+            this.Field(c => c.Name).Description("The name of the manufacturer, e.g. Tesla, Volkswagen, Ford");
+            this.Field(c => c.Code).Description("The unique database code identifying this manufacturer");
         }
     }
 }

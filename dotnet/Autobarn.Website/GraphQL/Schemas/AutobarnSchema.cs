@@ -7,6 +7,6 @@ namespace Autobarn.Website.GraphQL.Schemas
     public class AutobarnSchema : Schema
     {
         public AutobarnSchema(IAutobarnDatabase db) =>
-            Query = new VehicleQuery(db);
+            this.Query = new VehicleQuery(db);
     }
 }

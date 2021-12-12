@@ -3,7 +3,9 @@ using Autobarn.Data.Entities;
 using Autobarn.Website.GraphQL.GraphTypes;
 using GraphQL;
 using GraphQL.Types;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Autobarn.Website.GraphQL.Queries
 {
@@ -14,13 +16,49 @@ namespace Autobarn.Website.GraphQL.Queries
         public VehicleQuery(IAutobarnDatabase db)
         {
             this.db = db;
-            Field<ListGraphType<VehicleGraphType>>(
+            this.Field<ListGraphType<VehicleGraphType>>(
                 name: "Vehicles",
                 description: "Query to retrieve all vehicles",
-                resolve: GetAllVehicles);
+                resolve: this.GetAllVehicles);
+
+            this.Field<VehicleGraphType>(
+                name: "vehicle",
+                description: "Retrieve a single vechile",
+                arguments: new QueryArguments(
+                    MakeNonNullStringArgument(
+                        name: "registration",
+                        description: "The registration plate of the vehicle you want")),
+                resolve: this.GetVehicle);
+
+            this.Field<ListGraphType<VehicleGraphType>>(
+                name: "VehiclesByColor",
+                description: "Retrieve all vehicles matching a particular color",
+                arguments: new QueryArguments(MakeNonNullStringArgument("color", "What color cars do you want to see?")),
+                resolve: this.GetVehiclesByColor);
         }
 
         private IEnumerable<Vehicle> GetAllVehicles(IResolveFieldContext<object> context) =>
-            db.ListVehicles();
+            this.db.ListVehicles();
+
+        private Vehicle GetVehicle(IResolveFieldContext<object> context) =>
+            this.db.FindVehicle(context.GetArgument<string>("registration"));
+
+        private IEnumerable<Vehicle> GetVehiclesByColor(IResolveFieldContext<object> context)
+        {
+            string color = context.GetArgument<string>("color");
+
+            return this.db
+                    .ListVehicles()
+                    .Where(v => v.Color.Contains(color, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        private static QueryArgument MakeNonNullStringArgument(string name, string description)
+        {
+            return new QueryArgument<NonNullGraphType<StringGraphType>>
+            {
+                Name = name,
+                Description = description
+            };
+        }
     }
 }

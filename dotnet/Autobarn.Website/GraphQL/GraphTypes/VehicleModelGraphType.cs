@@ -7,10 +7,10 @@ namespace Autobarn.Website.GraphQL.GraphTypes
     {
         public VehicleModelGraphType()
         {
-            Name = "model";
-            Field(m => m.Name).Description("The name of this model of vehicle");
-            Field(m => m.Code).Description("The unique database code identifying this model");
-            Field(m => m.Manufacturer, type: typeof(ManufacturerGraphType))
+            this.Name = "model";
+            this.Field(m => m.Name).Description("The name of this model of vehicle");
+            this.Field(m => m.Code).Description("The unique database code identifying this model");
+            this.Field(m => m.Manufacturer, type: typeof(ManufacturerGraphType))
                 .Description("Which company manufactures this model of vehicle?");
         }
     }
