@@ -61,8 +61,6 @@ namespace Autobarn.Website.Controllers.api
         [HttpGet("registration/{registration}")]
         public IActionResult GetByRegistration(char registration = 'A')
         {
-            int total = this.db.CountVehicles();
-
             Dictionary<string, object> _links =
                 HypermediaExtensions.PaginateByLicensePlate(
                     baseUrl: "https://localhost:5001/api/vehicles",
